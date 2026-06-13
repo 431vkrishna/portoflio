@@ -15,7 +15,7 @@ def main():
         elif command.startswith("type"):
             cmd,arg_0,*args=command.strip().split()
             if command.endswith("echo") or command.endswith("type") or command.endswith("exit"):
-                print(f"{command} is a shell builtin")
+                print(f"{command[5:]} is a shell builtin")
             elif shutil.which(arg_0):
                 print(f"{arg_0} is {shutil.which(arg_0)}")
             else:
