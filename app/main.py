@@ -9,9 +9,11 @@ def main():
     print(f"{command}: command not found")
 
     while True:
-        command = input("$ ")
-        if command =="":
+        command=input("$ ")
+        if command=="":
             continue
+        elif command=="exit":
+            break
         print(f"{command}: command not found")
 
 
