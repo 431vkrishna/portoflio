@@ -13,7 +13,7 @@ def main():
             print(command[5:])
         elif command.startswith("type"):
             if command[5:]=="echo" or command[5:]=="type" or command[5:]=="exit":
-                print(f"{command[5:]}: is a shell builtin")
+                print(f"{command[5:]} is a shell builtin")
             else :
                 print(f"{command[5:]}: not found")
 
