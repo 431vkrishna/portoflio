@@ -1,5 +1,6 @@
 import sys
 import shutil
+import os
 
 
 def main():
@@ -10,6 +11,8 @@ def main():
             continue
         if command=="exit":
             break
+        elif command=="pwd":
+            print(os.getcwd())
         elif command.startswith("echo "):
             print(command[5:])
         elif command.startswith("type"):
