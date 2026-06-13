@@ -9,12 +9,18 @@ def main():
     print(f"{command}: command not found")
 
     while True:
-        command=input("$ ")
+        sys.stdout.write("$ ")
+        command=input()
         if command=="":
             continue
-        elif command=="exit":
+        if command=="exit":
             break
-        print(f"{command}: command not found")
+        elif command.startswith("echo "):
+            print(command[5:])
+        else :
+            print(f"{command}: command not found")
+
+
 
 
 if __name__ == "__main__":
