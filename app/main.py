@@ -1,34 +1,43 @@
-import sys
-import shutil
 import os
+import sys
+import subprocess
+
+builtins = ["echo", "exit", "type", "pwd"]
+
+
+def find_executable(cmd):
+    for directory in os.environ.get("PATH", "").split(os.pathsep):
+        path = os.path.join(directory, cmd)
+        if os.path.isfile(path) and os.access(path, os.X_OK):
+            return path
+    return None
 
 
 def main():
     while True:
-        sys.stdout.write("$ ")
-        command=input()
-        if command=="":
-            continue
-        if command=="exit":
-            break
-        elif command=="pwd":
-            print(os.getcwd())
-        elif command.startswith("echo "):
-            print(command[5:])
-        elif command.startswith("type"):
-            cmd,arg_0,*args=command.strip().split()
-            if command.endswith("echo") or command.endswith("type") or command.endswith("exit"):
-                print(f"{command[5:]} is a shell builtin")
-            elif shutil.which(arg_0):
-                print(f"{arg_0} is {shutil.which(arg_0)}")
-            else:
-                print(f"{command[5:]}: not found")
-
-
-        else :
-            print(f"{command}: command not found")
-
-
+        command = input("$ ")
+        parts = command.split()
+        cmd, args = parts[0], parts[1:]
+        match cmd:
+            case "exit":
+                break
+            case "echo":
+                print(" ".join(args))
+            case "pwd":
+                print(os.getcwd())
+            case "type":
+                target = args[0]
+                if target in builtins:
+                    print(f"{target} is a shell builtin")
+                elif path := find_executable(target):
+                    print(f"{target} is {path}")
+                else:
+                    print(f"{target}: not found")
+            case _:
+                if path := find_executable(cmd):
+                    subprocess.run([cmd] + args, executable=path)
+                else:
+                    print(f"{cmd}: command not found")
 
 
 if __name__ == "__main__":
