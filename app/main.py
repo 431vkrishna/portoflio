@@ -9,9 +9,11 @@ def main():
     print(f"{command}: command not found")
 
     while True:
-        command = input()
+        command = input("$ ")
+        if command =="":
+            continue
         print(f"{command}: command not found")
-        print("$ ",end="")
+
 
 if __name__ == "__main__":
     main()
