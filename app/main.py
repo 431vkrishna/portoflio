@@ -6,7 +6,7 @@ def main():
     pass
 
     command=input()
-    print(f"{command}: commandnot found")
+    print(f"{command}: command not found")
 
 
 
