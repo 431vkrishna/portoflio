@@ -207,7 +207,9 @@ def main():
             print(os.getcwd())
 
         elif cmd == "jobs":
-            pass
+            for job in sorted(JOBS, key=lambda item: item["id"]):
+                if job["process"].poll() is None:
+                    print(f"[{job['id']}]+  Running                 {job['command']} &")
 
         elif cmd == "cd":
             if len(parts) == 1:
