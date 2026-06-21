@@ -211,10 +211,14 @@ def main():
                 (job for job in JOBS if job["process"].poll() is None),
                 key=lambda item: item["id"],
             )
-            for index, job in enumerate(running_jobs):
-                if index == len(running_jobs) - 1:
+            latest_running_id = max(
+                (job["id"] for job in running_jobs),
+                default=None,
+            )
+            for job in running_jobs:
+                if latest_running_id is not None and job["id"] == latest_running_id:
                     marker = "+"
-                elif index == len(running_jobs) - 2:
+                elif latest_running_id is not None and job["id"] == latest_running_id - 1:
                     marker = "-"
                 else:
                     marker = " "
