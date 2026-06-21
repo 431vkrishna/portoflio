@@ -207,9 +207,18 @@ def main():
             print(os.getcwd())
 
         elif cmd == "jobs":
-            for job in sorted(JOBS, key=lambda item: item["id"]):
-                if job["process"].poll() is None:
-                    print(f"[{job['id']}]+  Running                 {job['command']} &")
+            running_jobs = sorted(
+                (job for job in JOBS if job["process"].poll() is None),
+                key=lambda item: item["id"],
+            )
+            for index, job in enumerate(running_jobs):
+                if index == len(running_jobs) - 1:
+                    marker = "+"
+                elif index == len(running_jobs) - 2:
+                    marker = "-"
+                else:
+                    marker = " "
+                print(f"[{job['id']}]{marker}  Running                 {job['command']} &")
 
         elif cmd == "cd":
             if len(parts) == 1:
