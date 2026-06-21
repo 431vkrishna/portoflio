@@ -81,34 +81,55 @@ def main():
             break
 
         elif "|" in command:
-            cmds = command.split("|")
-            cmds = [shlex.split(cmd.strip()) for cmd in cmds]
+            cmds = [shlex.split(part.strip()) for part in command.split("|")]
             processes = []
             prev_stdout = None
 
             for i, cmd in enumerate(cmds):
                 if cmd[0] in BUILTINS:
                     input_data = None
-                    if prev_stdout:
+                    if prev_stdout is not None:
                         input_data = prev_stdout.read()
                         prev_stdout.close()
+                        prev_stdout = None
+
                     output = run_builtin(cmd, input_data)
-                    p = subprocess.Popen(["cat"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-                    p.stdin.write(output)
-                    p.stdin.close()
 
+                    if i == len(cmds) - 1:
+                        sys.stdout.write(output)
+                        sys.stdout.flush()
+                    else:
+                        p = subprocess.Popen(
+                            ["cat"],
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            text=True,
+                        )
+                        assert p.stdin is not None
+                        assert p.stdout is not None
+                        p.stdin.write(output)
+                        p.stdin.close()
+                        prev_stdout = p.stdout
+                        processes.append(p)
                 else:
-                    p = subprocess.Popen(cmd, stdin=prev_stdout, text=True, stdout=subprocess.PIPE)
-
-                    if prev_stdout:
+                    p = subprocess.Popen(
+                        cmd,
+                        stdin=prev_stdout,
+                        stdout=subprocess.PIPE if i < len(cmds) - 1 else None,
+                        text=True,
+                    )
+                    if prev_stdout is not None:
                         prev_stdout.close()
-                prev_stdout = p.stdout
-                processes.append(p)
-            final_process = processes[-1]
-            for line in final_process.stdout:
-                sys.stdout.write(line)
-                sys.stdout.flush()
-            processes[-1].wait()
+                    prev_stdout = p.stdout
+                    processes.append(p)
+
+            if processes and processes[-1].stdout is not None:
+                for line in processes[-1].stdout:
+                    sys.stdout.write(line)
+                    sys.stdout.flush()
+
+            for p in processes:
+                p.wait()
 
         elif cmd == "echo":
 
