@@ -226,6 +226,11 @@ def main():
             append_mode = False
             stderr_redirect = None
             stdout_redirect = None
+            background = False
+
+            if parts and parts[-1] == "&":
+                background = True
+                parts = parts[:-1]
 
             if ">" in parts:
                 idx = parts.index(">")
@@ -270,7 +275,16 @@ def main():
                 stdout_file = open(stdout_redirect, mode) if stdout_redirect else None
                 stderr_file = open(stderr_redirect, mode) if stderr_redirect else None
 
-                subprocess.run([cmd] + parts[1:], stdout=stdout_file, stderr=stderr_file)
+                if background:
+                    process = subprocess.Popen(
+                        [cmd] + parts[1:],
+                        stdout=stdout_file,
+                        stderr=stderr_file,
+                    )
+                    print(f"[{1}] {process.pid}")
+                else:
+                    subprocess.run([cmd] + parts[1:], stdout=stdout_file, stderr=stderr_file)
+
                 if stdout_file:
                     stdout_file.close()
                 if stderr_file:
