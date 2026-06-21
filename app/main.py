@@ -5,6 +5,7 @@ import shlex
 import readline
 
 BUILTINS = {"exit", "echo", "type", "pwd", "cd"}
+JOBS = []
 
 
 def display_matches_hook(substitution, matches, longest_match_length):
@@ -66,8 +67,23 @@ def run_builtin(parts, input_data=None):
                 return f"{target}: not found\n"
 
 
+def get_next_job_id():
+    job_id = 1
+    while any(job["id"] == job_id for job in JOBS):
+        job_id += 1
+    return job_id
+
+
+def reap_jobs():
+    done_jobs = [job for job in JOBS if job["process"].poll() is not None]
+    for job in done_jobs:
+        JOBS.remove(job)
+        print(f"[{job['id']}]+  Done                 {job['command']}")
+
+
 def main():
     while True:
+        reap_jobs()
         sys.stdout.write("$ ")
         command = input()
 
@@ -281,7 +297,15 @@ def main():
                         stdout=stdout_file,
                         stderr=stderr_file,
                     )
-                    print(f"[{1}] {process.pid}")
+                    job_id = get_next_job_id()
+                    JOBS.append(
+                        {
+                            "id": job_id,
+                            "process": process,
+                            "command": " ".join([cmd] + parts[1:]),
+                        }
+                    )
+                    print(f"[{job_id}] {process.pid}")
                 else:
                     subprocess.run([cmd] + parts[1:], stdout=stdout_file, stderr=stderr_file)
 
