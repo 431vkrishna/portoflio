@@ -4,7 +4,7 @@ import os
 import shlex
 import readline
 
-BUILTINS = {"exit", "echo", "type", "pwd", "cd"}
+BUILTINS = {"exit", "echo", "type", "pwd", "cd", "jobs"}
 JOBS = []
 
 
@@ -52,6 +52,8 @@ def run_builtin(parts, input_data=None):
     cmd = parts[0]
     if cmd == "echo":
         return " ".join(parts[1:]) + "\n"
+    elif cmd == "jobs":
+        return ""
     elif cmd == "type":
         target = parts[1]
 
@@ -203,6 +205,9 @@ def main():
 
         elif cmd == "pwd":
             print(os.getcwd())
+
+        elif cmd == "jobs":
+            pass
 
         elif cmd == "cd":
             if len(parts) == 1:
